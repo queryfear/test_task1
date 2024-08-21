@@ -32,13 +32,20 @@ bool CreateData::program1_spell(const std::string &user_str) {
 }
 
 std::string CreateData::retrieve(std::queue<std::string> &cont) {
-    std::string value = "";
-    std::lock_guard<std::mutex> grd(mtx);
+    std::unique_lock<std::mutex> grd(mtx);
     
-    if (!cont.empty()) {
-        value = cont.front();
-        cont.pop();
-    }
+    // if (!cont.empty()) {
+    //     value = cont.front();
+    //     cont.pop();
+    // }
+
+    // &lock == unique_lock, p == waits for true
+    cv.wait(grd, [&cont]{
+        return !cont.empty();
+    });
+
+    std::string value = cont.front();
+    cont.pop();
 
     return value;
 }
@@ -46,6 +53,7 @@ std::string CreateData::retrieve(std::queue<std::string> &cont) {
 void CreateData::push(std::queue<std::string> &cont, std::string val) {
     std::lock_guard<std::mutex> grd(mtx);
     cont.push(val);
+    cv.notify_one();
 }
 
 std::string CreateData::first_stream(std::string user_str) {
