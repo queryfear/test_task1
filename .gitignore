@@ -1,0 +1,11 @@
+# VSCode Files
+.vscode/
+.cache/
+
+# CMake Files
+Makefile
+.exe
+.json
+.txt
+build/.cmake
+build/CMakeFiles

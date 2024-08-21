@@ -1,0 +1,38 @@
+[
+{
+  "directory": "/home/querylib/Desktop/test_task/build",
+  "command": "/usr/bin/c++  -I/home/querylib/Desktop/test_task/include -I/home/querylib/Desktop/test_task -g -std=gnu++20 -g -o CMakeFiles/test_task.dir/src/ConvA.cxx.o -c /home/querylib/Desktop/test_task/src/ConvA.cxx",
+  "file": "/home/querylib/Desktop/test_task/src/ConvA.cxx",
+  "output": "CMakeFiles/test_task.dir/src/ConvA.cxx.o"
+},
+{
+  "directory": "/home/querylib/Desktop/test_task/build",
+  "command": "/usr/bin/c++  -I/home/querylib/Desktop/test_task/include -I/home/querylib/Desktop/test_task -g -std=gnu++20 -g -o CMakeFiles/test_task.dir/src/main.cxx.o -c /home/querylib/Desktop/test_task/src/main.cxx",
+  "file": "/home/querylib/Desktop/test_task/src/main.cxx",
+  "output": "CMakeFiles/test_task.dir/src/main.cxx.o"
+},
+{
+  "directory": "/home/querylib/Desktop/test_task/build",
+  "command": "/usr/bin/c++  -I/home/querylib/Desktop/test_task/include -I/home/querylib/Desktop/test_task -g -std=gnu++20 -g -o CMakeFiles/test_task.dir/src/prog1main.cxx.o -c /home/querylib/Desktop/test_task/src/prog1main.cxx",
+  "file": "/home/querylib/Desktop/test_task/src/prog1main.cxx",
+  "output": "CMakeFiles/test_task.dir/src/prog1main.cxx.o"
+},
+{
+  "directory": "/home/querylib/Desktop/test_task/build",
+  "command": "/usr/bin/c++  -I/home/querylib/Desktop/test_task/include -I/home/querylib/Desktop/test_task -g -std=gnu++20 -g -o CMakeFiles/test_task.dir/src/prog2main.cxx.o -c /home/querylib/Desktop/test_task/src/prog2main.cxx",
+  "file": "/home/querylib/Desktop/test_task/src/prog2main.cxx",
+  "output": "CMakeFiles/test_task.dir/src/prog2main.cxx.o"
+},
+{
+  "directory": "/home/querylib/Desktop/test_task/build",
+  "command": "/usr/bin/c++  -I/home/querylib/Desktop/test_task/include -I/home/querylib/Desktop/test_task -g -std=gnu++20 -g -o CMakeFiles/test_task.dir/src/program1.cxx.o -c /home/querylib/Desktop/test_task/src/program1.cxx",
+  "file": "/home/querylib/Desktop/test_task/src/program1.cxx",
+  "output": "CMakeFiles/test_task.dir/src/program1.cxx.o"
+},
+{
+  "directory": "/home/querylib/Desktop/test_task/build",
+  "command": "/usr/bin/c++  -I/home/querylib/Desktop/test_task/include -I/home/querylib/Desktop/test_task -g -std=gnu++20 -g -o CMakeFiles/test_task.dir/src/program2.cxx.o -c /home/querylib/Desktop/test_task/src/program2.cxx",
+  "file": "/home/querylib/Desktop/test_task/src/program2.cxx",
+  "output": "CMakeFiles/test_task.dir/src/program2.cxx.o"
+}
+]
