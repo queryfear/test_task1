@@ -20,6 +20,7 @@ class CreateData {
         std::string                     buffer;
         std::mutex                      mtx;
         std::condition_variable         cv;
+        int                             servs;
 
     public:
         CreateData(): base(""), buffer(""), odd_hash("") {};
@@ -30,10 +31,10 @@ class CreateData {
         std::string                first_stream() { return first_stream(base); };
         std::string                first_stream(std::string user_str);
 
-        int                        second_stream(int &server_socket, 
+        int                        second_stream(int &server_socket, \
                                                  int &client_socket);
-        int                        second_stream(std::string user_str, 
-                                                 int &server_socket, 
+        int                        second_stream(std::string user_str, \
+                                                 int &server_socket, \
                                                  int &client_socket);
 
         template<typename T>
@@ -45,7 +46,7 @@ class CreateData {
         std::string                getBase() const;
         std::string                getHash() const;
         std::queue<std::string>&   getToValid() const;
-
+        int                        getServerSocket() const;
 };
 
 #endif // PROGRAM1_HXX

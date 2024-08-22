@@ -1,7 +1,9 @@
+#include <asm-generic/socket.h>
 #include <exception>
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <sys/socket.h>
 #include <vector>
 #include <mutex>
 #include <queue>
@@ -103,7 +105,11 @@ int CreateData::second_stream(int &server_socket, int &client_socket) {
 int CreateData::second_stream(std::string user_str,
                               int &server_socket,
                               int &client_socket) {
-    
+    struct timeval timeout;
+    timeout.tv_sec = 5;
+    timeout.tv_usec = 0;
+    ::setsockopt(client_socket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof(timeout));
+
     while(true) {
         try {
             int total = 0;
@@ -122,6 +128,7 @@ int CreateData::second_stream(std::string user_str,
                                     result.size(), 0)) == -1) {
                 throw std::runtime_error("ERROR accepting the data. Reconnect.\n");
             }
+            servs = server_socket;
         } catch (const std::exception& e) {
             ::close(client_socket);
 
@@ -131,26 +138,24 @@ int CreateData::second_stream(std::string user_str,
             std::cout << "Waiting client connection ...\n";
             if ((client_socket = ::accept(server_socket, 
                                         (struct sockaddr*)&client_address,
-                                        (socklen_t*)client_addr_len)) == -1) {
+                                        &client_addr_len)) == -1) {
                 std::cerr << "Error accepting client.\n";
             }
-
+            servs = server_socket;
             std::cout << "Client reconnected.\n";
         }
-        }
+    }
 
         return 0;
-    }
-    
 }
 
 std::string CreateData::getBase() const {
     return base;
 }
 
-// std::string CreateData::getBuffer() const {
-//     return buffer;
-// }
+std::string CreateData::getBuffer() const {
+    return buffer;
+}
 
 std::string CreateData::getHash() const {
     return !odd_hash.empty() ? odd_hash : "KB";
@@ -158,4 +163,8 @@ std::string CreateData::getHash() const {
 
 std::queue<std::string>& CreateData::getToValid() const {
     return std::ref(to_valid);
+}
+
+int CreateData::getServerSocket() const {
+    return servs;
 }

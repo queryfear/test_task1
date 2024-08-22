@@ -38,8 +38,8 @@ file(GLOB_RECURSE PROGRAM2
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})
-add_executable(prog1 ${PROGRAM1})
-add_executable(prog2 ${PROGRAM2})
+add_executable(server ${PROGRAM1})
+add_executable(client ${PROGRAM2})
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR})
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR})

@@ -28,16 +28,5 @@ int main() {
     }
 
     ofs.close();
-
-    std::ifstream ifs("../data.txt");
-    std::string line;
-    while (std::getline(ifs, line)) {
-        std::string odd_hash = cd.first_stream(line);
-        ValidateData valid(cd);
-        int stream_value = cd.second_stream(odd_hash);
-        valid.validate(stream_value);
-    }
-    
-    ifs.close();
     
 }
