@@ -1,7 +1,8 @@
+#include <exception>
 #include <iostream>
+#include <stdexcept>
 #include <string>
 #include <vector>
-#include <thread>
 #include <mutex>
 #include <queue>
 #include <program1.hxx>
@@ -10,6 +11,7 @@
 // #if defined(__GNUC__)
 //     #pragma GCC optimize ("O3")
 // #endif
+
 
 CreateData::CreateData(CreateData &_Cd) {
     base = _Cd.getBase();
@@ -31,7 +33,8 @@ bool CreateData::program1_spell(const std::string &user_str) {
     return true;
 }
 
-std::string CreateData::retrieve(std::queue<std::string> &cont) {
+template<typename T>
+T CreateData::retrieve(std::queue<T> &cont) {
     std::unique_lock<std::mutex> grd(mtx);
     
     // if (!cont.empty()) {
@@ -44,13 +47,14 @@ std::string CreateData::retrieve(std::queue<std::string> &cont) {
         return !cont.empty();
     });
 
-    std::string value = cont.front();
+    T value = cont.front();
     cont.pop();
 
     return value;
 }
 
-void CreateData::push(std::queue<std::string> &cont, std::string val) {
+template<typename T>
+void CreateData::push(std::queue<T> &cont, T val) {
     std::lock_guard<std::mutex> grd(mtx);
     cont.push(val);
     cv.notify_one();
@@ -89,35 +93,69 @@ std::string CreateData::first_stream(std::string user_str) {
     return user_str;
 }
 
-int CreateData::second_stream() {
+int CreateData::second_stream(int &server_socket, int &client_socket) {
     std::string _oddHash = "";
-    do {
-        std::string _oddHash = retrieve(buffer_array);
-    } while (_oddHash.empty());
+    _oddHash = retrieve(buffer_array);
     
-    return second_stream(_oddHash);
+    return second_stream(_oddHash, server_socket, client_socket);
 }
 
-int CreateData::second_stream(std::string user_str) {
-    int total = 0;
-    for (int i = 0; i < user_str.size(); ++i) {
-        if (ConvertAssistant::is_digit(user_str[i]) == true) {
-            total += ConvertAssistant::to_digit(user_str[i]);
+int CreateData::second_stream(std::string user_str,
+                              int &server_socket,
+                              int &client_socket) {
+    
+    while(true) {
+        try {
+            int total = 0;
+            for (int i = 0; i < user_str.size(); ++i) {
+                if (ConvertAssistant::is_digit(user_str[i]) == true) {
+                    total += ConvertAssistant::to_digit(user_str[i]);
+                }
+                else i++;
+            }
+            
+            push(to_valid, std::to_string(total));
+
+            std::string result = retrieve(to_valid);
+            int send_result;
+            if ((send_result =  ::send(client_socket, result.c_str(),
+                                    result.size(), 0)) == -1) {
+                throw std::runtime_error("ERROR accepting the data. Reconnect.\n");
+            }
+        } catch (const std::exception& e) {
+            ::close(client_socket);
+
+            struct sockaddr_in client_address;
+            socklen_t client_addr_len = sizeof(client_address);
+
+            std::cout << "Waiting client connection ...\n";
+            if ((client_socket = ::accept(server_socket, 
+                                        (struct sockaddr*)&client_address,
+                                        (socklen_t*)client_addr_len)) == -1) {
+                std::cerr << "Error accepting client.\n";
+            }
+
+            std::cout << "Client reconnected.\n";
         }
-        else i++;
+        }
+
+        return 0;
     }
     
-    return total;
 }
 
 std::string CreateData::getBase() const {
     return base;
 }
 
-std::string CreateData::getBuffer() const {
-    return buffer;
-}
+// std::string CreateData::getBuffer() const {
+//     return buffer;
+// }
 
 std::string CreateData::getHash() const {
     return !odd_hash.empty() ? odd_hash : "KB";
+}
+
+std::queue<std::string>& CreateData::getToValid() const {
+    return std::ref(to_valid);
 }

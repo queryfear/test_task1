@@ -1,0 +1,13 @@
+1. cd test_task/build
+2. cmake -S ..
+3. make
+
+After that
+4. ./server - 1 terminal
+5. ./client - 2 terminal
+6. any data in server
+7. 2 terminal ctrl+c, then ./client
+8. Done!
+
+Or
+4. ./test_task

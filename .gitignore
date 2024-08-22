@@ -5,7 +5,7 @@
 # CMake Files
 Makefile
 *.exe
-*.txt
+build/*.txt
 # compile_commands.json
 build/.cmake
 build/CMakeFiles
@@ -15,4 +15,8 @@ prog1
 prog2
 
 # Debug data
-# data.txt
+data.txt
+
+# Trash
+socketest/
+socketown/
