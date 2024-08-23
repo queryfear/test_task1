@@ -6,14 +6,25 @@
 #include <InvalidDataError.hxx>
 
 void ValidateData::reconnect(int &client_socket, struct sockaddr_in &server_addr) {
+    // Освобождаем ресурсы, связанные с сокетом, если заняты (файловые дескрипторы)
     ::close(client_socket);
+
+
     while (true) {
         std::cout << "Attempting to reconnect...\n";
+
+        // Создаем новый клиентский сокет для TCP подключения к серверу
+        // `AF_INET` - использование протокола IPv4
+        // `SOCK_STREAM` - использование TCP соединения
+        // `0` значение по умолчанию (TCP для SOCK_STREAM)
         client_socket = ::socket(AF_INET, SOCK_STREAM, 0);
+
+        // Инициирует соединения клиента с сервером, используя IP и PORT из server_addr. Если соединение успешно, вернет 0
         if (::connect(client_socket, (struct sockaddr*)&server_addr, sizeof(server_addr)) == 0) {
             std::cout << "Reconnected to the server.\n";
             break;
         }
+
         ::close(client_socket);
         ::sleep(1);
     }
@@ -23,8 +34,17 @@ ValidateData::ValidateData(CreateData &_Cd) {
     odd_hash = _Cd.getHash();
     server_socket = _Cd.getServerSocket();
 
+    // Настройка параметров адреса сервера для подключения через сокет
+    
+    // `sin_family` определяет семейство протоколов, используемое для сокетов. Ставим IPv4
     server_address.sin_family = AF_INET;
+
+    // `sin_port` содержит номер порта, который нужно использовать для подключения к серверу
+    // htons преобразует номер порта в сетевой порядок байт, который требуется для корректной работы в сети
     server_address.sin_port = ::htons(PORT);
+
+    // Преобразует IP из текстового формата в числовой
+    // Указываем протокол, IP и затем переменную адреса сервера, куда сохраняем IP
     ::inet_pton(AF_INET, IP.c_str(), &server_address.sin_addr);
 
     while (true) {
@@ -39,7 +59,7 @@ ValidateData::ValidateData(CreateData &_Cd) {
             ::sleep(1);
         }
     }
-    
+
     stream_value = _Cd.second_stream(odd_hash, server_socket, client_socket);
 }
 

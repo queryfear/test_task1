@@ -1,7 +1,7 @@
-#include <asm-generic/socket.h>
-#include <exception>
+#include <asm-generic/socket.h> ///< Заголовочный файл для работы с системными файлами
+#include <exception> ///< Библиотека для работы с исключениями
 #include <iostream>
-#include <stdexcept>
+#include <stdexcept> ///< Заголовок для стандартных исключений (std::runtime_error)
 #include <string>
 #include <sys/socket.h>
 #include <vector>
@@ -14,6 +14,9 @@
 //     #pragma GCC optimize ("O3")
 // #endif
 
+// namespace {
+//     bool data_ready = false;
+// }
 
 CreateData::CreateData(CreateData &_Cd) {
     base = _Cd.getBase();
@@ -37,14 +40,11 @@ bool CreateData::program1_spell(const std::string &user_str) {
 
 template<typename T>
 T CreateData::retrieve(std::queue<T> &cont) {
-    std::unique_lock<std::mutex> grd(mtx);
-    
-    // if (!cont.empty()) {
-    //     value = cont.front();
-    //     cont.pop();
-    // }
+    // Блокирует потоки пока не выйдет из зоны видимости (функции)
+    std::unique_lock<std::mutex> grd(mtx);   
 
-    // &lock == unique_lock, p == waits for true
+    // cv.wait() принимает заблокированный guard и функцию как условие выхода из цикла
+    // если очередь пуста, ожидает cv.notify_one() или cv.notify_all()
     cv.wait(grd, [&cont]{
         return !cont.empty();
     });
@@ -59,7 +59,7 @@ template<typename T>
 void CreateData::push(std::queue<T> &cont, T val) {
     std::lock_guard<std::mutex> grd(mtx);
     cont.push(val);
-    cv.notify_one();
+    cv.notify_one(); //< Уведомляем потоки об обновлении очереди
 }
 
 std::string CreateData::first_stream(std::string user_str) {
@@ -108,6 +108,11 @@ int CreateData::second_stream(std::string user_str,
     struct timeval timeout;
     timeout.tv_sec = 5;
     timeout.tv_usec = 0;
+
+    // Системный вызов для настроек параметров сокета
+    // SOL_SOCKET указывает на настройку общего параметра сокета
+    // SO_RCVTIMEO задает таймаут для операций чтения
+    //! Если клиент не отправит данные в течение 5 секунд, произойдет таймаут
     ::setsockopt(client_socket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof(timeout));
 
     while(true) {
@@ -124,29 +129,45 @@ int CreateData::second_stream(std::string user_str,
 
             std::string result = retrieve(to_valid);
             int send_result;
+
+            // Отправляем строку с суммой клиенту
+            // client_socket - сокет, по которому происходит соединение с клиентом
+            // result.c_str() - указатель на массив символов (строка, которую мы собираемся отправить)
+            // result.size() - длина строки (количество байт для отправки)
+            // 0 - флаг (в данном случае отсутствие флагов)
+            // Если возвращает -1, значит произошла ошибка при отправке данных клиенту
             if ((send_result =  ::send(client_socket, result.c_str(),
                                     result.size(), 0)) == -1) {
                 throw std::runtime_error("ERROR accepting the data. Reconnect.\n");
             }
-            servs = server_socket;
+
         } catch (const std::exception& e) {
+
+            // Закрываем сокет, так как произошла ошибка и он больше не активен
             ::close(client_socket);
 
+            // Структура для хранения адресса клиента (IP, PORT)
             struct sockaddr_in client_address;
             socklen_t client_addr_len = sizeof(client_address);
 
+
             std::cout << "Waiting client connection ...\n";
-            if ((client_socket = ::accept(server_socket, 
-                                        (struct sockaddr*)&client_address,
+
+            // Функция `accept` блокирует выполнение программы до тех пор, пока не подключится новый клиент.
+            // При подключении клиента возвращает дескриптор сокета для клиента , который сохраняется в `client_socket`
+            if ((client_socket = ::accept(server_socket, \
+                                        (struct sockaddr*)&client_address, \
                                         &client_addr_len)) == -1) {
                 std::cerr << "Error accepting client.\n";
             }
+
+            // Обновляем поле, так как мог быть принят новый клиент
             servs = server_socket;
             std::cout << "Client reconnected.\n";
         }
     }
 
-        return 0;
+    return 0;
 }
 
 std::string CreateData::getBase() const {
